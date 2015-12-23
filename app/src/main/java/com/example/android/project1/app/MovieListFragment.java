@@ -52,7 +52,7 @@ import java.util.ArrayList;
  */
 public class MovieListFragment extends Fragment {
 
-    private ArrayAdapter<String> mForecastAdapter;
+    private ArrayAdapter<String> movieListAdapter;
 
     public MovieListFragment() {
     }
@@ -76,7 +76,7 @@ public class MovieListFragment extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            updateWeather();
+            updateMovieList();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -88,7 +88,7 @@ public class MovieListFragment extends Fragment {
 
         // The ArrayAdapter will take data from a source and
         // use it to populate the ListView it's attached to.
-        mForecastAdapter =
+        movieListAdapter =
                 new ArrayAdapter<String>(
                         getActivity(), // The current context (this activity)
                         R.layout.list_item_forecast, // The name of the layout ID.
@@ -99,12 +99,12 @@ public class MovieListFragment extends Fragment {
 
         // Get a reference to the ListView, and attach this adapter to it.
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(mForecastAdapter);
+        listView.setAdapter(movieListAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                String forecast = mForecastAdapter.getItem(position);
+                String forecast = movieListAdapter.getItem(position);
                 Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
                         .putExtra(Intent.EXTRA_TEXT, forecast);
                 startActivity(intent);
@@ -114,23 +114,24 @@ public class MovieListFragment extends Fragment {
         return rootView;
     }
 
-    private void updateWeather() {
-        FetchWeatherTask weatherTask = new FetchWeatherTask();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String location = prefs.getString(getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
-        weatherTask.execute(location);
+    private void updateMovieList() {
+        FetchMovieListTask movieListTask = new FetchMovieListTask();
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortKey = sharedPrefs.getString(
+                getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_popularity));
+        movieListTask.execute(sortKey);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        updateWeather();
+        updateMovieList();
     }
 
-    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+    public class FetchMovieListTask extends AsyncTask<String, Void, String[]> {
 
-        private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
+        private final String LOG_TAG = FetchMovieListTask.class.getSimpleName();
 
         /* The date/time conversion code is going to be moved outside the asynctask later,
          * so for convenience we're breaking it out into its own method now.
@@ -147,10 +148,10 @@ public class MovieListFragment extends Fragment {
          */
         private String formatHighLows(double high, double low, String unitType) {
 
-            if (unitType.equals(getString(R.string.pref_units_imperial))) {
+            if (unitType.equals(getString(R.string.pref_sort_rating))) {
                 high = (high * 1.8) + 32;
                 low = (low * 1.8) + 32;
-            } else if (!unitType.equals(getString(R.string.pref_units_metric))) {
+            } else if (!unitType.equals(getString(R.string.pref_sort_popularity))) {
                 Log.d(LOG_TAG, "Unit type not found: " + unitType);
             }
 
@@ -169,19 +170,20 @@ public class MovieListFragment extends Fragment {
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
-        private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
+        private String[] getMovieDataFromJson(String movieListJsonStr, int numDays)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
-            final String OWM_LIST = "list";
+            final String TMDB_LIST = "results";
             final String OWM_WEATHER = "weather";
             final String OWM_TEMPERATURE = "temp";
             final String OWM_MAX = "max";
             final String OWM_MIN = "min";
             final String OWM_DESCRIPTION = "main";
 
-            JSONObject forecastJson = new JSONObject(forecastJsonStr);
-            JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
+            JSONObject movieListJson = new JSONObject(movieListJsonStr);
+            JSONArray movieArray = movieListJson.getJSONArray(TMDB_LIST);
+
 
             // OWM returns daily forecasts based upon the local time of the city that is being
             // asked for, which means that we need to know the GMT offset to translate this data
@@ -200,27 +202,35 @@ public class MovieListFragment extends Fragment {
             // now we work exclusively in UTC
             dayTime = new Time();
 
-            String[] resultStrs = new String[numDays];
+            String[] resultStrs = new String[movieArray.length()];
 
             // Data is fetched in Celsius by default.
             // If user prefers to see in Fahrenheit, convert the values here.
             // We do this rather than fetching in Fahrenheit so that the user can
             // change this option without us having to re-fetch the data once
             // we start storing the values in a database.
-            SharedPreferences sharedPrefs =
+            /*SharedPreferences sharedPrefs =
                     PreferenceManager.getDefaultSharedPreferences(getActivity());
             String unitType = sharedPrefs.getString(
-                    getString(R.string.pref_units_key),
-                    getString(R.string.pref_units_metric));
+                    getString(R.string.pref_sort_key),
+                    getString(R.string.pref_sort_popularity));*/
 
-            for(int i = 0; i < weatherArray.length(); i++) {
+            for(int i = 0; i < movieArray.length(); i++) {
+
+                String title;
+                // Get the JSON object representing the movie
+                JSONObject movieDetail = movieArray.getJSONObject(i);
+                title = movieDetail.getString("original_title");
+                resultStrs[i] = title;
+
+                /*
                 // For now, using the format "Day, description, hi/low"
                 String day;
                 String description;
                 String highAndLow;
 
                 // Get the JSON object representing the day
-                JSONObject dayForecast = weatherArray.getJSONObject(i);
+                JSONObject dayForecast = movieArray.getJSONObject(i);
 
                 // The date/time is returned as a long.  We need to convert that
                 // into something human-readable, since most people won't read "1400356800" as
@@ -242,6 +252,9 @@ public class MovieListFragment extends Fragment {
 
                 highAndLow = formatHighLows(high, low, unitType);
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
+                */
+
+
             }
             return resultStrs;
 
@@ -260,7 +273,7 @@ public class MovieListFragment extends Fragment {
             BufferedReader reader = null;
 
             // Will contain the raw JSON response as a string.
-            String forecastJsonStr = null;
+            String movieListJsonStr = null;
 
             String format = "json";
             String units = "metric";
@@ -270,20 +283,14 @@ public class MovieListFragment extends Fragment {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                final String FORECAST_BASE_URL =
-                        "http://api.openweathermap.org/data/2.5/forecast/daily?";
-                final String QUERY_PARAM = "q";
-                final String FORMAT_PARAM = "mode";
-                final String UNITS_PARAM = "units";
-                final String DAYS_PARAM = "cnt";
-                final String APPID_PARAM = "APPID";
+                final String THE_MOVIE_DB_BASE_URL =
+                        "http://api.themoviedb.org/3/discover/movie?";
+                final String SORT_PARAM = "sort_by";
+                final String APPID_PARAM = "api_key";
 
-                Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                        .appendQueryParameter(QUERY_PARAM, params[0])
-                        .appendQueryParameter(FORMAT_PARAM, format)
-                        .appendQueryParameter(UNITS_PARAM, units)
-                        .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                        .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
+                Uri builtUri = Uri.parse(THE_MOVIE_DB_BASE_URL).buildUpon()
+                        .appendQueryParameter(SORT_PARAM, params[0])
+                        .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
                         .build();
 
                 URL url = new URL(builtUri.toString());
@@ -314,7 +321,7 @@ public class MovieListFragment extends Fragment {
                     // Stream was empty.  No point in parsing.
                     return null;
                 }
-                forecastJsonStr = buffer.toString();
+                movieListJsonStr = buffer.toString();
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
@@ -334,7 +341,7 @@ public class MovieListFragment extends Fragment {
             }
 
             try {
-                return getWeatherDataFromJson(forecastJsonStr, numDays);
+                return getMovieDataFromJson(movieListJsonStr, numDays);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
@@ -347,9 +354,9 @@ public class MovieListFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             if (result != null) {
-                mForecastAdapter.clear();
-                for(String dayForecastStr : result) {
-                    mForecastAdapter.add(dayForecastStr);
+                movieListAdapter.clear();
+                for(String movieDetailStr : result) {
+                    movieListAdapter.add(movieDetailStr);
                 }
                 // New data is back from the server.  Hooray!
             }
