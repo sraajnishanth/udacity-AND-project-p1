@@ -23,18 +23,12 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
         Movie movieDetail = getItem(position);
         View rootView = LayoutInflater.from(getContext()).inflate(R.layout.grid_item_movie, parent, false);
 
-        // TextView txt = (TextView) rootView.findViewById(R.id.grid_item_movie_imageview);
-        // txt.setText(movieDetail.getMoviePosterUri().toString());
-
         ImageView img = (ImageView) rootView.findViewById(R.id.grid_item_movie_imageview);
-        int width = getContext().getResources().getDisplayMetrics().widthPixels;
+
         Picasso
                 .with(getContext())
                 .load(movieDetail.getMoviePosterUri())
-                //.centerCrop().resize(width /2,width / 2)
                 .into(img);
-//        Picasso.with(getContext()).load(abc).into(img);
-        //Picasso.with(getContext()).load(R.drawable.ic_launcher).into(img);
         return rootView;
     }
 }

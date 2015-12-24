@@ -188,7 +188,6 @@ public class Movie implements Parcelable {
                     .appendEncodedPath(this.posterPath)
                     .build();
 
-            //URL url = new URL(builtUri.toString());
             return builtUri;
         } catch (Exception e) {
             e.printStackTrace();

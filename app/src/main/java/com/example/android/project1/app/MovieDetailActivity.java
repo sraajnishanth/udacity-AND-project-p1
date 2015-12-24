@@ -1,18 +1,4 @@
-/*
- * Copyright (C) 2014 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
 
 package com.example.android.project1.app;
 
@@ -58,9 +44,7 @@ public class MovieDetailActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        // Handle action bar item clicks here.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -95,19 +79,19 @@ public class MovieDetailActivity extends ActionBarActivity {
             // The moviedetail Activity called via intent.  Inspect the intent for forecast data.
             Intent intent = getActivity().getIntent();
             if (intent != null && intent.hasExtra(getResources().getString(R.string.movie_intent_extra))) {
-                //mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
                 movieDetail = intent.getParcelableExtra(getResources().getString(R.string.movie_intent_extra));
 
                 ((TextView) rootView.findViewById(R.id.movie_detail_title_text)).setText(movieDetail.getTitle());
                 ((TextView) rootView.findViewById(R.id.movie_detail_overview_text)).setText(movieDetail.getOverview());
                 ((TextView) rootView.findViewById(R.id.movie_detail_release_date)).setText(movieDetail.getReleaseDate());
+
+                // Divide the vote_average by 2 since there are only 5 stars but vote_average is out of 10
                 ((RatingBar) rootView.findViewById(R.id.movie_detail_rating_bar)).setRating(movieDetail.getVoteAverage().floatValue()/2);
 
                 ImageView img = (ImageView) rootView.findViewById(R.id.movie_detail_image_view);
                 Picasso
                         .with(getActivity().getBaseContext())
                         .load(movieDetail.getMoviePosterUri())
-                                //.centerCrop().resize(width /2,width / 2)
                         .into(img);
 
             }
@@ -127,8 +111,7 @@ public class MovieDetailActivity extends ActionBarActivity {
             ShareActionProvider mShareActionProvider =
                     (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
-            // Attach an intent to this ShareActionProvider.  You can update this at any time,
-            // like when the user selects a new piece of data they might like to share.
+            // Attach an intent to this ShareActionProvider.
             if (mShareActionProvider != null ) {
                 mShareActionProvider.setShareIntent(createShareForecastIntent());
             } else {

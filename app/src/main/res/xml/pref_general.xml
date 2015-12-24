@@ -3,13 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditTextPreference
-        android:title="@string/pref_location_label"
-        android:key="@string/pref_location_key"
-        android:defaultValue="@string/pref_location_default"
-        android:inputType="text"
-        android:singleLine="true" />
-
     <ListPreference
         android:title="@string/pref_sort_label"
         android:key="@string/pref_sort_key"
