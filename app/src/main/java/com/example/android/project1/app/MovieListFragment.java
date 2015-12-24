@@ -217,11 +217,32 @@ public class MovieListFragment extends Fragment {
 
             for(int i = 0; i < movieArray.length(); i++) {
 
-                String title;
-                // Get the JSON object representing the movie
-                JSONObject movieDetail = movieArray.getJSONObject(i);
-                title = movieDetail.getString("original_title");
-                resultStrs[i] = title;
+                try {
+                    // Get the JSON object representing the movie
+                    JSONObject movieDetail = movieArray.getJSONObject(i);
+                    String title = movieDetail.getString("original_title");
+                    String imageUrl = movieDetail.getString("backdrop_path");
+
+                    String MOVIE_IMAGE_BASE_URL =
+                            "http://image.tmdb.org/t/p/";
+                    String SIZE_PARAM = "w185";
+
+
+                    Uri builtUri = Uri.parse(MOVIE_IMAGE_BASE_URL).buildUpon()
+                            .appendEncodedPath(SIZE_PARAM)
+                            .appendEncodedPath(imageUrl)
+                            .build();
+
+                    //URL url = new URL(builtUri.toString());
+                    resultStrs[i] = builtUri.toString();
+
+                }
+                catch (Exception e) {
+                    Log.e(LOG_TAG, "Error ", e);
+                    return null;
+                }
+
+
 
                 /*
                 // For now, using the format "Day, description, hi/low"
