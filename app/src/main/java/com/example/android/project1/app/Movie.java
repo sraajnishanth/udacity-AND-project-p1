@@ -19,6 +19,9 @@ public class Movie implements Parcelable {
     private String title;
     private String backdropPath;
     private Double popularity;
+    private Integer voteCount;
+    private Boolean video;
+    private Double voteAverage;
 
     protected Movie(Parcel in) {
         posterPath = in.readString();
@@ -31,6 +34,8 @@ public class Movie implements Parcelable {
         title = in.readString();
         backdropPath = in.readString();
         popularity = in.readDouble();
+        voteCount = in.readInt();
+        voteAverage = in.readDouble();
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
@@ -149,9 +154,7 @@ public class Movie implements Parcelable {
         this.voteAverage = voteAverage;
     }
 
-    private Integer voteCount;
-    private Boolean video;
-    private Double voteAverage;
+
 
     public Movie(JSONObject movieDetail) {
         try {
@@ -211,5 +214,7 @@ public class Movie implements Parcelable {
         dest.writeString(title);
         dest.writeString(backdropPath);
         dest.writeDouble(popularity);
+        dest.writeInt(voteCount);
+        dest.writeDouble(voteAverage);
     }
 }

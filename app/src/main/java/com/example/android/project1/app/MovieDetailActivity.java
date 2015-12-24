@@ -29,7 +29,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 public class MovieDetailActivity extends ActionBarActivity {
 
@@ -93,8 +97,18 @@ public class MovieDetailActivity extends ActionBarActivity {
             if (intent != null && intent.hasExtra(getResources().getString(R.string.movie_intent_extra))) {
                 //mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
                 movieDetail = intent.getParcelableExtra(getResources().getString(R.string.movie_intent_extra));
-                ((TextView) rootView.findViewById(R.id.detail_text))
-                        .setText(movieDetail.getOverview());
+
+                ((TextView) rootView.findViewById(R.id.movie_detail_title_text)).setText(movieDetail.getTitle());
+                ((TextView) rootView.findViewById(R.id.movie_detail_overview_text)).setText(movieDetail.getOverview());
+                ((TextView) rootView.findViewById(R.id.movie_detail_release_date)).setText(movieDetail.getReleaseDate());
+                ((RatingBar) rootView.findViewById(R.id.movie_detail_rating_bar)).setRating(movieDetail.getVoteAverage().floatValue()/2);
+
+                ImageView img = (ImageView) rootView.findViewById(R.id.movie_detail_image_view);
+                Picasso
+                        .with(getActivity().getBaseContext())
+                        .load(movieDetail.getMoviePosterUri())
+                                //.centerCrop().resize(width /2,width / 2)
+                        .into(img);
 
             }
 

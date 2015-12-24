@@ -20,6 +20,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
@@ -54,8 +55,16 @@ public class MovieListFragment extends Fragment {
 
     private MovieAdapter movieListAdapter;
     private ArrayList<Movie> movieArrayList;
+    public static final String MOVIES_KEY = "movies";
 
     public MovieListFragment() {
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(MOVIES_KEY,(ArrayList<? extends Parcelable>) movieArrayList);
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -63,6 +72,12 @@ public class MovieListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
+
+        if (savedInstanceState == null || !savedInstanceState.containsKey(MOVIES_KEY)) {
+            updateMovieList();
+        } else {
+            movieArrayList = savedInstanceState.<Movie>getParcelableArrayList(MOVIES_KEY);
+        }
     }
 
     @Override

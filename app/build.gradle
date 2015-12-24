@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.android.project1.app"
-        minSdkVersion 10
+        minSdkVersion 14
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
@@ -18,7 +18,7 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField 'String', 'THE_MOVIE_DB_API_KEY', "\"my-movie-key\""
+        it.buildConfigField 'String', 'THE_MOVIE_DB_API_KEY', "\"202b96d2427552f0e4665c0ab9f09a3e\""
     }
 }
 
