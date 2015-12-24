@@ -54,7 +54,7 @@ public class MovieListFragment extends Fragment {
         if (savedInstanceState == null || !savedInstanceState.containsKey(MOVIES_KEY)) {
             updateMovieList();
         } else {
-            movieArrayList = savedInstanceState.<Movie>getParcelableArrayList(MOVIES_KEY);
+            movieArrayList = savedInstanceState.getParcelableArrayList(MOVIES_KEY);
         }
     }
 
