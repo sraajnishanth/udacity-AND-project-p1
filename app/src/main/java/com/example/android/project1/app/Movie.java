@@ -6,7 +6,6 @@ import android.net.Uri;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class Movie {
@@ -57,7 +56,7 @@ public class Movie {
 
             URL url = new URL(builtUri.toString());
             return url;
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

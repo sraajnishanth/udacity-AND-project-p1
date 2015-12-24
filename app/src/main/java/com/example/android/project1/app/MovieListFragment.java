@@ -31,7 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ListView;
 
 import org.json.JSONArray;
@@ -52,7 +52,7 @@ import java.util.ArrayList;
  */
 public class MovieListFragment extends Fragment {
 
-    private ArrayAdapter<String> movieListAdapter;
+    private MovieAdapter movieListAdapter;
 
     public MovieListFragment() {
     }
@@ -88,25 +88,42 @@ public class MovieListFragment extends Fragment {
 
         // The ArrayAdapter will take data from a source and
         // use it to populate the ListView it's attached to.
-        movieListAdapter =
-                new ArrayAdapter<String>(
-                        getActivity(), // The current context (this activity)
-                        R.layout.list_item_forecast, // The name of the layout ID.
-                        R.id.list_item_forecast_textview, // The ID of the textview to populate.
-                        new ArrayList<String>());
+//        movieListAdapter =
+//                new ArrayAdapter<Movie>(
+//                        getActivity(), // The current context (this activity)
+//                        R.layout.list_item_forecast, // The name of the layout ID.
+//                        R.id.list_item_forecast_textview, // The ID of the textview to populate.
+//                        new ArrayList<Movie>());
+
+        movieListAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         // Get a reference to the ListView, and attach this adapter to it.
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+       /*
+        ListView listView = (ListView) rootView.findViewById(R.id.gridview_movies);
         listView.setAdapter(movieListAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                String forecast = movieListAdapter.getItem(position);
+                Movie movieDetail = movieListAdapter.getItem(position);
                 Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, forecast);
+                        .putExtra(Intent.EXTRA_TEXT, movieDetail.overview);
+                startActivity(intent);
+            }
+        });
+        */
+
+        GridView gridView = (GridView) rootView.findViewById(R.id.gridview_movies);
+        gridView.setAdapter(movieListAdapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Movie movieDetail = movieListAdapter.getItem(position);
+                Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
+                                .putExtra(Intent.EXTRA_TEXT, movieDetail.overview);
                 startActivity(intent);
             }
         });
@@ -129,7 +146,7 @@ public class MovieListFragment extends Fragment {
         updateMovieList();
     }
 
-    public class FetchMovieListTask extends AsyncTask<String, Void, String[]> {
+    public class FetchMovieListTask extends AsyncTask<String, Void, Movie[]> {
 
         private final String LOG_TAG = FetchMovieListTask.class.getSimpleName();
 
@@ -170,7 +187,7 @@ public class MovieListFragment extends Fragment {
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
-        private String[] getMovieDataFromJson(String movieListJsonStr, int numDays)
+        private Movie[] getMovieDataFromJson(String movieListJsonStr, int numDays)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
@@ -202,7 +219,7 @@ public class MovieListFragment extends Fragment {
             // now we work exclusively in UTC
             dayTime = new Time();
 
-            String[] resultStrs = new String[movieArray.length()];
+            Movie[] movieObjArray = new Movie[movieArray.length()];
 
             // Data is fetched in Celsius by default.
             // If user prefers to see in Fahrenheit, convert the values here.
@@ -217,32 +234,24 @@ public class MovieListFragment extends Fragment {
 
             for(int i = 0; i < movieArray.length(); i++) {
 
-                try {
-                    // Get the JSON object representing the movie
-                    JSONObject movieDetail = movieArray.getJSONObject(i);
-                    String title = movieDetail.getString("original_title");
-                    String imageUrl = movieDetail.getString("backdrop_path");
+                // Get the JSON object representing the movie
+                JSONObject movieDetail = movieArray.getJSONObject(i);
+                Movie movieObject = new Movie(movieDetail);
+                /*String title = movieDetail.getString("original_title");
+                String imageUrl = movieDetail.getString("backdrop_path");
 
-                    String MOVIE_IMAGE_BASE_URL =
-                            "http://image.tmdb.org/t/p/";
-                    String SIZE_PARAM = "w185";
-
-
-                    Uri builtUri = Uri.parse(MOVIE_IMAGE_BASE_URL).buildUpon()
-                            .appendEncodedPath(SIZE_PARAM)
-                            .appendEncodedPath(imageUrl)
-                            .build();
-
-                    //URL url = new URL(builtUri.toString());
-                    resultStrs[i] = builtUri.toString();
-
-                }
-                catch (Exception e) {
-                    Log.e(LOG_TAG, "Error ", e);
-                    return null;
-                }
+                String MOVIE_IMAGE_BASE_URL =
+                        "http://image.tmdb.org/t/p/";
+                String SIZE_PARAM = "w185";
 
 
+                Uri builtUri = Uri.parse(MOVIE_IMAGE_BASE_URL).buildUpon()
+                        .appendEncodedPath(SIZE_PARAM)
+                        .appendEncodedPath(imageUrl)
+                        .build();*/
+
+                //URL url = new URL(builtUri.toString());
+                movieObjArray[i] = movieObject;
 
                 /*
                 // For now, using the format "Day, description, hi/low"
@@ -277,11 +286,11 @@ public class MovieListFragment extends Fragment {
 
 
             }
-            return resultStrs;
+            return movieObjArray;
 
         }
         @Override
-        protected String[] doInBackground(String... params) {
+        protected Movie[] doInBackground(String... params) {
 
             // If there's no zip code, there's nothing to look up.  Verify size of params.
             if (params.length == 0) {
@@ -373,11 +382,11 @@ public class MovieListFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String[] result) {
+        protected void onPostExecute(Movie[] result) {
             if (result != null) {
                 movieListAdapter.clear();
-                for(String movieDetailStr : result) {
-                    movieListAdapter.add(movieDetailStr);
+                for(Movie movieDetailObj : result) {
+                    movieListAdapter.add(movieDetailObj);
                 }
                 // New data is back from the server.  Hooray!
             }

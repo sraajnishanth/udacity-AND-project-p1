@@ -19,10 +19,11 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Movie movieDetail = getItem(position);
-        View rootView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_forecast, parent, false);
+        View rootView = LayoutInflater.from(getContext()).inflate(R.layout.grid_item_movie, parent, false);
 
-        TextView txt = (TextView) rootView.findViewById(R.id.list_item_forecast_textview);
+        TextView txt = (TextView) rootView.findViewById(R.id.grid_item_movie_imageview);
         txt.setText(movieDetail.getMoviePosterUrl().toString());
+
 
         return rootView;
     }
