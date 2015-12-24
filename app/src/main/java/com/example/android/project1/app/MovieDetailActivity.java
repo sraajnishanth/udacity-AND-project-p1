@@ -75,8 +75,8 @@ public class MovieDetailActivity extends ActionBarActivity {
 
         private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
-        private static final String FORECAST_SHARE_HASHTAG = " #Project1App";
-        private String mForecastStr;
+        private static final String MOVIE_SHARE_HASHTAG = " #Project1App";
+        private Movie movieDetail;
 
         public DetailFragment() {
             setHasOptionsMenu(true);
@@ -90,10 +90,12 @@ public class MovieDetailActivity extends ActionBarActivity {
 
             // The moviedetail Activity called via intent.  Inspect the intent for forecast data.
             Intent intent = getActivity().getIntent();
-            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-                mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
+            if (intent != null && intent.hasExtra(getResources().getString(R.string.movie_intent_extra))) {
+                //mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
+                movieDetail = intent.getParcelableExtra(getResources().getString(R.string.movie_intent_extra));
                 ((TextView) rootView.findViewById(R.id.detail_text))
-                        .setText(mForecastStr);
+                        .setText(movieDetail.getOverview());
+
             }
 
             return rootView;
@@ -124,8 +126,7 @@ public class MovieDetailActivity extends ActionBarActivity {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT,
-                    mForecastStr + FORECAST_SHARE_HASHTAG);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, movieDetail.getTitle() + MOVIE_SHARE_HASHTAG);
             return shareIntent;
         }
     }

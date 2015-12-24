@@ -53,6 +53,7 @@ import java.util.ArrayList;
 public class MovieListFragment extends Fragment {
 
     private MovieAdapter movieListAdapter;
+    private ArrayList<Movie> movieArrayList;
 
     public MovieListFragment() {
     }
@@ -123,7 +124,8 @@ public class MovieListFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Movie movieDetail = movieListAdapter.getItem(position);
                 Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
-                                .putExtra(Intent.EXTRA_TEXT, movieDetail.overview);
+                        .putExtra(getResources().getString(R.string.movie_intent_extra), movieDetail);
+                                //.putExtra(Intent.EXTRA_TEXT, movieDetail.getOverview());
                 startActivity(intent);
             }
         });

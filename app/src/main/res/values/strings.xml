@@ -34,10 +34,10 @@
     <string name="pref_sort_label">Sort Order</string>
 
     <!-- Label for metric option in temperature unit preference [CHAR LIMIT=25] -->
-    <string name="pref_sort_label_popularity">Metric</string>
+    <string name="pref_sort_label_popularity">Sort by Popularity</string>
 
     <!-- Label for imperial option in temperature unit preference [CHAR LIMIT=25] -->
-    <string name="pref_sort_label_rating">Imperial</string>
+    <string name="pref_sort_label_rating">Sort by Rating</string>
 
     <!-- Key name for temperature unit preference in SharedPreferences [CHAR LIMIT=NONE] -->
     <string name="pref_sort_key" translatable="false">sort</string>
@@ -47,5 +47,9 @@
 
     <!-- Value in SharedPreferences for imperial temperature unit option [CHAR LIMIT=NONE] -->
     <string name="pref_sort_rating" translatable="false">vote_average.desc</string>
+
+    <string name="image_view_content_description" translatable="false">Movie poster image</string>
+
+    <string name="movie_intent_extra" translatable="false">movieDetail</string>
 
 </resources>
